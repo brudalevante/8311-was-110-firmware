@@ -20,14 +20,15 @@ jobs:
       - name: Run ShellCheck
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            FILES=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
-              | grep -E '^(tools/|mods/)?[^/]+\.sh$' || true)
+            git fetch origin "${{ github.base_ref }}":"refs/remotes/origin/${{ github.base_ref }}"
+            FILES=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -E '\.sh$' || true)
+            FILES=$(echo "$FILES" | while IFS= read -r f; do [ -f "$f" ] && echo "$f"; done)
             if [ -z "$FILES" ]; then
               echo "No shell files changed."
               exit 0
             fi
             echo "Checking: $FILES"
-            echo "$FILES" | xargs shellcheck
+            echo "$FILES" | xargs -r shellcheck
           else
             shellcheck *.sh tools/*.sh mods/*.sh
           fi
