@@ -46,7 +46,6 @@ REMOVE_PACKAGES=(
 	"luci-app-advanced-reboot"
 	"luci-app-commands"
 	"luci-app-firewall"
-	"luci-app-opkg"
 	"luci-mod-network"
 	"luci-theme-openwrt"
 )

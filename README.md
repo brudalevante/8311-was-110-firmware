@@ -136,6 +136,13 @@ Previous UCI settings will be automatically migrated.
 
 The current root password (change with `passwd`) can be persisted using the `8311-persist-root-password.sh` command
 
+### SSH defaults in built image
+- SSH (`dropbear`) is configured on port `22`
+- Password authentication is enabled
+- Root password authentication is enabled (use `root` user for SSH login)
+- Dropbear is enabled at boot
+- First interactive root login prints a one-time security notice to change password immediately
+
 
 
 
@@ -150,6 +157,11 @@ You will need `mkimage` (u-boot-tools), `unsquashfs`/`mksquashfs` (squashfs-tool
 
 ### Building
 You can use `make` to check your environment, or run the scripts directly.
+
+Example build command:
+```bash
+./build.sh -i /absolute/path/to/stock-local-upgrade.img -o /absolute/path/to/local-upgrade.img
+```
 
 ### build.sh
 
@@ -192,4 +204,38 @@ Options:
 -k --kernel <filename>          Specify filename to extract kernel image to (default: kernel.bin).
 -r --rootfs <filename>          Specify filename to extract rootfs image to (default: rootfs.img).
 -h --help                       This help text
+```
+
+## Package management and LuCI Software tab
+- LuCI package-management files (`luci-app-opkg`) are preserved in the built image.
+- `opkg` can be used to install local IPK files.
+- LuCI **System → Software** remains available when LuCI/opkg components exist in the source image.
+
+### Local IPK install example
+Copy the package, then install from local path:
+```bash
+scp /absolute/path/to/packages/common/dropbear_2022.83-1_mips_24kc.ipk root@<device-ip>:/tmp/
+ssh root@<device-ip> 'opkg install /tmp/dropbear_2022.83-1_mips_24kc.ipk'
+```
+
+## Security implications
+- Enabling SSH password auth increases brute-force risk if weak/default passwords are kept.
+- Change the root password immediately after first login (`passwd root`).
+- Prefer SSH keys in `/root/.ssh/authorized_keys` for ongoing access.
+
+## Validation notes / checks
+After flashing the built image:
+```bash
+# SSH + auth config
+uci show dropbear
+/etc/init.d/dropbear enabled && echo "dropbear enabled"
+
+# Package manager availability
+command -v opkg && opkg --version
+
+# LuCI Software tab backend files
+ls -l /usr/lib/lua/luci/controller/opkg.lua /www/luci-static/resources/view/opkg.js
+
+# Local IPK installation path
+opkg install /tmp/dropbear_2022.83-1_mips_24kc.ipk
 ```
