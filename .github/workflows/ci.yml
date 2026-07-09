@@ -37,9 +37,35 @@ jobs:
   deps-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Install missing deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y u-boot-tools libdigest-crc-perl
       - name: Make check_deps executable
         run: chmod +x check_deps.sh
       - name: Check Dependencies (Dry Run)
         continue-on-error: true
         run: ./check_deps.sh
+
+  build:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y u-boot-tools libdigest-crc-perl
+      - name: Make build scripts executable
+        run: chmod +x build.sh check_deps.sh copy_packages.sh create.sh extract.sh wholeImage.sh
+      - name: Build firmware images
+        run: ./build.sh -R
+      - name: Upload firmware artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: firmware-images
+          path: out/**
+          if-no-files-found: error
