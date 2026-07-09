@@ -89,13 +89,13 @@ cat <<'PONSHLIB'
 
 _lib_8311 2>/dev/null || . /lib/8311.sh
 PONSHLIB
-echo "$LIB_PON_SH_TOP"
+printf '%s\n' "$LIB_PON_SH_TOP"
 cat <<'PONSHMAC'
 	# 8311 MOD: Use proper base MAC
 	local mac_addr="$(get_8311_base_mac)"
 
 PONSHMAC
-echo "$LIB_PON_SH_FOOT"
+printf '%s\n' "$LIB_PON_SH_FOOT"
 } >> "$LIB_PON_SH"
 
 
