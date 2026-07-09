@@ -27,7 +27,8 @@ jobs:
               echo "No shell files changed."
               exit 0
             fi
-            echo "Checking: $FILES"
+            echo "Checking:"
+            echo "$FILES"
             echo "$FILES" | xargs -r shellcheck
           else
             shellcheck *.sh tools/*.sh mods/*.sh
