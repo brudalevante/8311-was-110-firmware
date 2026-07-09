@@ -46,7 +46,6 @@ REMOVE_PACKAGES=(
 	"luci-app-advanced-reboot"
 	"luci-app-commands"
 	"luci-app-firewall"
-	"luci-app-opkg"
 	"luci-mod-network"
 	"luci-theme-openwrt"
 )
@@ -63,17 +62,17 @@ rm -fv packages/common/*.ipk packages/basic/*.ipk packages/bfw/*.ipk packages/re
 
 for PACKAGE in "${COMMON_PACKAGES[@]}"; do
 	IPK=$(find_ipks "$PACKAGE")
-	[ -n "$IPK" ] && cp -fv $IPK packages/common/
+	[ -n "$IPK" ] && cp -fv "$IPK" packages/common/
 done
 
 for PACKAGE in "${BASIC_PACKAGES[@]}"; do
 	IPK=$(find_ipks "$PACKAGE")
-	[ -n "$IPK" ] && cp -fv $IPK packages/basic/
+	[ -n "$IPK" ] && cp -fv "$IPK" packages/basic/
 done
 
 for PACKAGE in "${BFW_PACKAGES[@]}"; do
 	IPK=$(find_ipks "$PACKAGE")
-	[ -n "$IPK" ] && cp -fv $IPK packages/bfw/
+	[ -n "$IPK" ] && cp -fv "$IPK" packages/bfw/
 done
 
 for PACKAGE in "${REMOVE_PACKAGES[@]}"; do

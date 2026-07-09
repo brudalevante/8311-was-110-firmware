@@ -93,6 +93,8 @@ set dropbear.@dropbear[0].Port='22'
 set dropbear.@dropbear[0].DirectInterface='$DB_INT'
 commit dropbear
 BATCH
+
+	[ -x /etc/init.d/dropbear ] && /etc/init.d/dropbear enable
 fi
 
 uci set "sfp_eeprom.factory_bridge.enable"="0"

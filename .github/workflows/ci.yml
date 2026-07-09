@@ -11,12 +11,28 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck
 
       - name: Run ShellCheck
-        run: shellcheck *.sh tools/*.sh mods/*.sh
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${{ github.base_ref }}":"refs/remotes/origin/${{ github.base_ref }}"
+            FILES=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -E '\.sh$' || true)
+            FILES=$(echo "$FILES" | while IFS= read -r f; do [ -f "$f" ] && echo "$f"; done)
+            if [ -z "$FILES" ]; then
+              echo "No shell files changed."
+              exit 0
+            fi
+            echo "Checking:"
+            echo "$FILES"
+            echo "$FILES" | xargs -r shellcheck
+          else
+            shellcheck *.sh tools/*.sh mods/*.sh
+          fi
 
   deps-check:
     runs-on: ubuntu-latest

@@ -136,6 +136,13 @@ Previous UCI settings will be automatically migrated.
 
 The current root password (change with `passwd`) can be persisted using the `8311-persist-root-password.sh` command
 
+### SSH defaults in built image
+- SSH (`dropbear`) is configured on port `22`
+- Password authentication is enabled
+- Root password authentication is enabled (use `root` user for SSH login)
+- Dropbear is enabled at boot
+- First interactive root login prints a one-time security notice to change password immediately
+
 
 
 
@@ -150,6 +157,11 @@ You will need `mkimage` (u-boot-tools), `unsquashfs`/`mksquashfs` (squashfs-tool
 
 ### Building
 You can use `make` to check your environment, or run the scripts directly.
+
+Example build command:
+```bash
+./build.sh -i /absolute/path/to/stock-local-upgrade.img -o /absolute/path/to/local-upgrade.img
+```
 
 ### build.sh
 
@@ -193,3 +205,43 @@ Options:
 -r --rootfs <filename>          Specify filename to extract rootfs image to (default: rootfs.img).
 -h --help                       This help text
 ```
+
+## Package management and LuCI Software tab
+- LuCI package-management files (`luci-app-opkg`) are preserved in the built image.
+- `opkg` can be used to install local IPK files.
+- LuCI **System → Software** remains available when LuCI/opkg components exist in the source image.
+
+### Local IPK install example
+Target package in this repo is `packages/common/dropbear_2022.83-1_mips_24kc.ipk`; confirm the exact filename in your checkout before copying:
+```bash
+ls -1 /absolute/path/to/packages/common/dropbear_*.ipk
+PKG="$(ls -1 /absolute/path/to/packages/common/dropbear_*.ipk | head -n1 | xargs -n1 basename)"
+scp "/absolute/path/to/packages/common/${PKG}" root@<device-ip>:/tmp/
+ssh root@<device-ip> "opkg install /tmp/${PKG}"
+```
+
+## Security implications
+- Enabling SSH password auth increases brute-force risk if weak/default passwords are kept.
+- Change the root password immediately after first login (`passwd`) from serial console or first SSH session.
+- The built-in first-login password message is advisory; access is not blocked until password is changed.
+- Prefer SSH keys in `/root/.ssh/authorized_keys` for ongoing access.
+
+## Validation notes / checks
+After flashing the built image:
+```bash
+# SSH + auth config
+uci show dropbear
+/etc/init.d/dropbear enabled && echo "dropbear enabled" || echo "dropbear disabled"
+
+# Package manager availability
+command -v opkg && opkg --version
+
+# LuCI Software tab backend files
+ls -l /usr/lib/lua/luci/controller/opkg.lua /www/luci-static/resources/view/opkg.js
+
+# Local IPK installation path
+PKG="$(ls -1 /tmp/dropbear_*.ipk | head -n1 | xargs -n1 basename)"
+opkg install "/tmp/${PKG}"
+opkg list-installed | grep '^dropbear '
+```
+Expected result: `opkg install` completes without dependency/file-conflict errors and `opkg list-installed` shows a `dropbear` entry.
