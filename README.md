@@ -212,9 +212,10 @@ Options:
 - LuCI **System → Software** remains available when LuCI/opkg components exist in the source image.
 
 ### Local IPK install example
-For this repo, use `packages/common/dropbear_2022.83-1_mips_24kc.ipk` (or adjust if the filename/version differs in your checkout):
+Target package in this repo is `packages/common/dropbear_2022.83-1_mips_24kc.ipk`; confirm the exact filename in your checkout before copying:
 ```bash
-PKG="dropbear_2022.83-1_mips_24kc.ipk"
+ls -1 /absolute/path/to/packages/common/dropbear_*.ipk
+PKG="$(ls -1 /absolute/path/to/packages/common/dropbear_*.ipk | head -n1 | xargs -n1 basename)"
 scp "/absolute/path/to/packages/common/${PKG}" root@<device-ip>:/tmp/
 ssh root@<device-ip> "opkg install /tmp/${PKG}"
 ```
@@ -239,7 +240,7 @@ command -v opkg && opkg --version
 ls -l /usr/lib/lua/luci/controller/opkg.lua /www/luci-static/resources/view/opkg.js
 
 # Local IPK installation path
-PKG="dropbear_2022.83-1_mips_24kc.ipk"
+PKG="$(ls -1 /tmp/dropbear_*.ipk | head -n1 | xargs -n1 basename)"
 opkg install "/tmp/${PKG}"
 opkg list-installed | grep '^dropbear '
 ```

@@ -6,6 +6,6 @@ if [ ! -f "$PASSWD_NOTICE_FILE" ]; then
 	echo "SSH password authentication is enabled on port 22."
 	command -v logger >/dev/null 2>&1 && logger -t 8311-security "Password change advisory shown to root at login"
 	if ! mkdir -p /ptconf/8311 2>/dev/null || ! touch "$PASSWD_NOTICE_FILE" 2>/dev/null; then
-		echo "WARNING: Cannot persist password notice to /ptconf/8311 (read-only filesystem?). This notice will appear on each login."
+		echo "WARNING: Cannot persist password notice to /ptconf/8311. This notice will appear on each login. Common causes: read-only filesystem or insufficient permissions."
 	fi
 fi
