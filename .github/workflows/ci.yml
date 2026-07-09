@@ -11,12 +11,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck
 
       - name: Run ShellCheck
-        run: shellcheck *.sh tools/*.sh mods/*.sh
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            FILES=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
+              | grep -E '^(tools/|mods/)?[^/]+\.sh$' || true)
+            if [ -z "$FILES" ]; then
+              echo "No shell files changed."
+              exit 0
+            fi
+            echo "Checking: $FILES"
+            echo "$FILES" | xargs shellcheck
+          else
+            shellcheck *.sh tools/*.sh mods/*.sh
+          fi
 
   deps-check:
     runs-on: ubuntu-latest
