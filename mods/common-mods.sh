@@ -80,20 +80,23 @@ chmod +x "$RC_LOCAL"
 LIB_PON_SH="$ROOT_DIR/lib/pon.sh"
 LIB_PON_SH_HEAD=$(grep -P -m 1 -B99999999 '^$' "$LIB_PON_SH")
 LIB_PON_SH_TOP=$(grep -P -m 1 -A99999999 '^$' "$LIB_PON_SH" | grep -P -B99999999 '^pon_base_mac_get\(\)')
+# shellcheck disable=SC2016 # Match literal "$mac_addr" in source text
 LIB_PON_SH_FOOT=$(grep -P -A99999999 '^\s+echo \$mac_addr$' "$LIB_PON_SH")
 
 echo "$LIB_PON_SH_HEAD" > "$LIB_PON_SH"
-cat >> "$LIB_PON_SH" <<'PONSHLIB'
+{
+cat <<'PONSHLIB'
 
 _lib_8311 2>/dev/null || . /lib/8311.sh
 PONSHLIB
-echo "$LIB_PON_SH_TOP" >> "$LIB_PON_SH"
-cat >> "$LIB_PON_SH" <<'PONSHMAC'
+echo "$LIB_PON_SH_TOP"
+cat <<'PONSHMAC'
 	# 8311 MOD: Use proper base MAC
 	local mac_addr="$(get_8311_base_mac)"
 
 PONSHMAC
-echo "$LIB_PON_SH_FOOT" >> "$LIB_PON_SH"
+echo "$LIB_PON_SH_FOOT"
+} >> "$LIB_PON_SH"
 
 
 cp -fv "8311-xgspon-bypass/8311-detect-config.sh" "8311-xgspon-bypass/8311-fix-vlans.sh" "$ROOT_DIR/usr/sbin/"
@@ -137,6 +140,7 @@ fi
 
 DROPBEAR="$ROOT_DIR/etc/init.d/dropbear"
 # Fix dropbear init script from newer OpenWRT
+# shellcheck disable=SC2016 # Keep ${NAME} literal for runtime expansion in dropbear script
 sed -r 's/^extra_command "killclients" .+$/EXTRA_COMMANDS="killclients"\nEXTRA_HELP="    killclients Kill ${NAME} processes except servers and yourself"/' -i "$DROPBEAR"
 
 # Setup custom dropbear configuration links

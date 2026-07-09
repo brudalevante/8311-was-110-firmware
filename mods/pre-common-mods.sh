@@ -6,17 +6,16 @@ rm -fv "$ROOT_DIR/etc/mibs/urx800_"*".ini"
 if ls packages/remove/*.list &>/dev/null; then
 	for LIST in packages/remove/*.list; do
 		echo "Removing files from '$LIST'"
-		FILES=$(cat "$LIST" | grep -v '/$')
-
-		IFS=$'\n'
-		for FILE in $(cat "$LIST" | grep -v '/$'); do
+		while IFS= read -r FILE; do
 			rm -fv "$ROOT_DIR/$FILE" || true
-		done
+		done < <(grep -v '/$' "$LIST")
 
-		for DIR in $(cat "$LIST" | grep '/$' | sort -r -V); do
+		while IFS= read -r DIR; do
 			DIR="$ROOT_DIR/$DIR"
-			CONTENTS=$(find "$DIR" -mindepth 1 -maxdepth 1 2>/dev/null) && [ -z "$CONTENTS" ] && rmdir -v "$DIR" || true
-		done
-		IFS=
+			CONTENTS=$(find "$DIR" -mindepth 1 -maxdepth 1 2>/dev/null)
+			if [ -z "$CONTENTS" ]; then
+				rmdir -v "$DIR" || true
+			fi
+		done < <(grep '/$' "$LIST" | sort -r -V)
 	done
 fi
