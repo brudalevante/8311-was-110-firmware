@@ -212,12 +212,12 @@ Options:
 - LuCI **System → Software** remains available when LuCI/opkg components exist in the source image.
 
 ### Local IPK install example
-Copy the package, then install from local path:
+For this repo, use `packages/common/dropbear_2022.83-1_mips_24kc.ipk` (or adjust if the filename/version differs in your checkout):
 ```bash
-scp /absolute/path/to/packages/common/dropbear_2022.83-1_mips_24kc.ipk root@<device-ip>:/tmp/
-ssh root@<device-ip> 'opkg install /tmp/dropbear_2022.83-1_mips_24kc.ipk'
+PKG="dropbear_2022.83-1_mips_24kc.ipk"
+scp "/absolute/path/to/packages/common/${PKG}" root@<device-ip>:/tmp/
+ssh root@<device-ip> "opkg install /tmp/${PKG}"
 ```
-If your checkout contains a different dropbear filename/version, use that exact file in both commands.
 
 ## Security implications
 - Enabling SSH password auth increases brute-force risk if weak/default passwords are kept.
@@ -238,7 +238,8 @@ command -v opkg && opkg --version
 ls -l /usr/lib/lua/luci/controller/opkg.lua /www/luci-static/resources/view/opkg.js
 
 # Local IPK installation path
-opkg install /tmp/dropbear_2022.83-1_mips_24kc.ipk
+PKG="dropbear_2022.83-1_mips_24kc.ipk"
+opkg install "/tmp/${PKG}"
 opkg list-installed | grep '^dropbear '
 ```
 Expected result: `opkg install` completes without dependency/file-conflict errors and `opkg list-installed` shows a `dropbear` entry.
