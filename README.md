@@ -221,7 +221,7 @@ ssh root@<device-ip> "opkg install /tmp/${PKG}"
 
 ## Security implications
 - Enabling SSH password auth increases brute-force risk if weak/default passwords are kept.
-- Change the root password immediately after first login (`passwd root`) from serial console or first SSH session.
+- Change the root password immediately after first login (`passwd`) from serial console or first SSH session.
 - The built-in first-login password message is advisory; access is not blocked until password is changed.
 - Prefer SSH keys in `/root/.ssh/authorized_keys` for ongoing access.
 
