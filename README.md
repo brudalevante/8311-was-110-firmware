@@ -221,7 +221,8 @@ ssh root@<device-ip> "opkg install /tmp/${PKG}"
 
 ## Security implications
 - Enabling SSH password auth increases brute-force risk if weak/default passwords are kept.
-- Change the root password immediately after first login (`passwd root`).
+- Change the root password immediately after first login (`passwd root`) from serial console or first SSH session.
+- The built-in first-login password message is advisory; access is not blocked until password is changed.
 - Prefer SSH keys in `/root/.ssh/authorized_keys` for ongoing access.
 
 ## Validation notes / checks
@@ -229,7 +230,7 @@ After flashing the built image:
 ```bash
 # SSH + auth config
 uci show dropbear
-/etc/init.d/dropbear enabled && echo "dropbear enabled"
+/etc/init.d/dropbear enabled && echo "dropbear enabled" || echo "dropbear disabled"
 
 # Package manager availability
 command -v opkg && opkg --version
