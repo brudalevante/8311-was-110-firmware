@@ -239,4 +239,6 @@ ls -l /usr/lib/lua/luci/controller/opkg.lua /www/luci-static/resources/view/opkg
 
 # Local IPK installation path
 opkg install /tmp/dropbear_2022.83-1_mips_24kc.ipk
+opkg list-installed | grep '^dropbear '
 ```
+Expected result: `opkg install` completes without dependency/file-conflict errors and `opkg list-installed` shows a `dropbear` entry.
